@@ -1,0 +1,6 @@
+streamlit
+azure-storage-blob
+pandas
+matplotlib
+plotly
+numpy
