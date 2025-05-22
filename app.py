@@ -4,7 +4,6 @@ from azure_blob import fetch_sentiment_data
 from metrics import get_sentiment_statistics
 import plotly.express as px
 import time
-from datetime import datetime
 
 
 st.set_page_config(page_title="Live Sentiment Dashboard", layout="wide")
@@ -48,6 +47,22 @@ def main():
     while True:
         # Fetch updated data
         sentiment_data = fetch_sentiment_data()
+
+        # Filter data by selected date(s) if any
+        if date_filter:
+            sentiment_df = pd.DataFrame(sentiment_data)
+            if not sentiment_df.empty and "timestamp" in sentiment_df.columns:
+                sentiment_df["timestamp"] = pd.to_datetime(sentiment_df["timestamp"])
+                # If single date selected, date_filter is a datetime.date object; if multiple, it's a list
+                if isinstance(date_filter, list) and len(date_filter) > 0:
+                    sentiment_df = sentiment_df[
+                        sentiment_df["timestamp"].dt.date.isin(date_filter)
+                    ]
+                else:
+                    sentiment_df = sentiment_df[
+                        sentiment_df["timestamp"].dt.date == date_filter
+                    ]
+                sentiment_data = sentiment_df.to_dict(orient="records")
 
         if sentiment_data:
             # Calculate metrics
