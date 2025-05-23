@@ -1,10 +1,17 @@
 from azure.storage.blob import BlobServiceClient
+import os
 import streamlit as st
 import json
 
 
 def get_blob_service_client():
-    blob_conn_str = st.secrets["BLOB_CONNECTION_STRING"]
+    blob_conn_str = os.environ.get("BLOB_CONNECTION_STRING") or st.secrets.get(
+        "BLOB_CONNECTION_STRING"
+    )
+    if not blob_conn_str:
+        raise ValueError(
+            "BLOB_CONNECTION_STRING not found in environment variables or Streamlit secrets."
+        )
     return BlobServiceClient.from_connection_string(blob_conn_str)
 
 
